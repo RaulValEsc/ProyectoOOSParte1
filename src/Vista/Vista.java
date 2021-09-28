@@ -6,6 +6,7 @@
 package Vista;
 
 import Modelo.Usuario;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,6 +31,7 @@ import sun.font.TrueTypeFont;
 public class Vista extends javax.swing.JFrame {
 
     ArrayList<Usuario> listaUsuarios = new ArrayList<Usuario>();
+
     /**
      * Creates new form Vista
      */
@@ -167,7 +169,7 @@ public class Vista extends javax.swing.JFrame {
 
     private void etIdKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_etIdKeyTyped
         char num = evt.getKeyChar();
-        if(!Character.isDigit(num)&&evt.getKeyChar()!=KeyEvent.VK_BACK_SPACE){
+        if (!Character.isDigit(num) && evt.getKeyChar() != KeyEvent.VK_BACK_SPACE) {
             evt.consume();
             getToolkit().beep();
         }
@@ -175,7 +177,7 @@ public class Vista extends javax.swing.JFrame {
 
     private void etNombreKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_etNombreKeyTyped
         char letra = evt.getKeyChar();
-        if(!Character.isAlphabetic(letra)&&evt.getKeyChar()!=KeyEvent.VK_SPACE&&evt.getKeyChar()!=KeyEvent.VK_BACK_SPACE&&evt.getKeyChar()!=KeyEvent.VK_SHIFT){
+        if (!Character.isAlphabetic(letra) && evt.getKeyChar() != KeyEvent.VK_SPACE && evt.getKeyChar() != KeyEvent.VK_BACK_SPACE && evt.getKeyChar() != KeyEvent.VK_SHIFT) {
             evt.consume();
             getToolkit().beep();
         }
@@ -183,7 +185,7 @@ public class Vista extends javax.swing.JFrame {
 
     private void etFechaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_etFechaKeyTyped
         char dig = evt.getKeyChar();
-        if(!Character.isDigit(dig)&&evt.getKeyChar()!=KeyEvent.VK_SLASH&&evt.getKeyChar()!=KeyEvent.VK_BACK_SPACE){
+        if (!Character.isDigit(dig) && evt.getKeyChar() != KeyEvent.VK_SLASH && evt.getKeyChar() != KeyEvent.VK_BACK_SPACE) {
             evt.consume();
             getToolkit().beep();
             JOptionPane.showMessageDialog(this, "El formato de la fecha es: dd/mm/yy", "Error en el formato", JOptionPane.ERROR_MESSAGE);
@@ -192,59 +194,68 @@ public class Vista extends javax.swing.JFrame {
 
     private void etSaldoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_etSaldoKeyTyped
         char num = evt.getKeyChar();
-        if(!Character.isDigit(num)&&evt.getKeyChar()!=KeyEvent.VK_BACK_SPACE&&evt.getKeyChar()!=KeyEvent.VK_COMMA){
+        if (!Character.isDigit(num) && evt.getKeyChar() != KeyEvent.VK_BACK_SPACE && evt.getKeyChar() != KeyEvent.VK_COMMA) {
             evt.consume();
             getToolkit().beep();
         }
     }//GEN-LAST:event_etSaldoKeyTyped
 
     private void bCrearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bCrearActionPerformed
-        if(etId.getText().isEmpty()||etNombre.getText().isEmpty()||etSaldo.getText().isEmpty()||etFecha.getText().isEmpty()){
+        if (etId.getText().isEmpty() || etNombre.getText().isEmpty() || etSaldo.getText().isEmpty() || etFecha.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "No puede haber un campo vacío", "Error", JOptionPane.ERROR_MESSAGE);
-        }else{
+            getToolkit().beep();
+        } else {
             int id = Integer.parseInt(etId.getText());
             String Nombre = etNombre.getText();
             Double Saldo = Double.parseDouble(etSaldo.getText().replace(",", "."));
-            Date Fecha=null;
+            Date Fecha = null;
             SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yy");
             try {
                 Fecha = formato.parse(etFecha.getText());
             } catch (ParseException ex) {
                 System.out.println("La fecha no ha podido ser parseada");
             }
-            if(comrpobarUnique(id)==true){
+            if (comrpobarUnique(id) == true) {
                 JOptionPane.showMessageDialog(this, "El id ha de ser único", "Error", JOptionPane.ERROR_MESSAGE);
-            }else{
+                getToolkit().beep();
+            } else {
                 Usuario u = new Usuario(id, Nombre, Saldo, Fecha);
                 listaUsuarios.add(u);
+                System.out.println(u.getId());
+                JOptionPane.showMessageDialog(this, "Usuario creado con éxito");
             }
         }
     }//GEN-LAST:event_bCrearActionPerformed
 
     private void bGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bGuardarActionPerformed
-        JFileChooser fc = new JFileChooser();
-        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int seleccion = fc.showOpenDialog(this);
-        if (seleccion == JFileChooser.APPROVE_OPTION) {
-            try {
-                File f1 = fc.getSelectedFile();
-                String nombre = JOptionPane.showInputDialog(this,"Introduce el nombre del fichero",JOptionPane.QUESTION_MESSAGE);
-                File f = new File(f1.getAbsolutePath()+"\\"+nombre+".txt");
-                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f,true));
-                for (Usuario u1 : listaUsuarios) {
-                    oos.writeObject(u1);
+        if (!listaUsuarios.isEmpty()) {
+            JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int seleccion = fc.showOpenDialog(this);
+            if (seleccion == JFileChooser.APPROVE_OPTION) {
+                try {
+                    File f1 = fc.getSelectedFile();
+                    String nombre = JOptionPane.showInputDialog(this, "Introduce el nombre del fichero", JOptionPane.QUESTION_MESSAGE);
+                    File f = new File(f1.getAbsolutePath() + "\\" + nombre + ".txt");
+                    ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f, true));
+                    for (Usuario u1 : listaUsuarios) {
+                        oos.writeObject(u1);
+                    }
+                    JOptionPane.showMessageDialog(this, "Fichero creado con éxito", "Listo", JOptionPane.PLAIN_MESSAGE);
+                    System.exit(0);
+                } catch (FileNotFoundException ex) {
+                    System.out.println("Ha ocurrido un error: " + ex.getMessage());
+                } catch (IOException ex) {
+                    System.out.println("Ha ocurrido un error: " + ex.getMessage());
+                } catch (NullPointerException ex) {
+                    System.out.println("Ha ocurrido un error: " + ex.getMessage());
+                } catch (SecurityException ex) {
+                    System.out.println("Ha ocurrido un error: " + ex.getMessage());
                 }
-                JOptionPane.showMessageDialog(this, "Fichero creado con éxito","Listo",JOptionPane.PLAIN_MESSAGE);
-                System.exit(0);
-            } catch (FileNotFoundException ex) {
-                System.out.println("Ha ocurrido un error: "+ex.getMessage());
-            } catch (IOException ex) {
-                System.out.println("Ha ocurrido un error: "+ex.getMessage());
-            } catch (NullPointerException ex){
-                System.out.println("Ha ocurrido un error: "+ex.getMessage());
-            } catch (SecurityException ex){
-                System.out.println("Ha ocurrido un error: "+ex.getMessage());
             }
+        } else {
+            getToolkit().beep();
+            JOptionPane.showMessageDialog(this, "Primero has de crear Usuarios", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_bGuardarActionPerformed
 
@@ -283,16 +294,16 @@ public class Vista extends javax.swing.JFrame {
         });
     }
 
-    public boolean comrpobarUnique(int id){
-        boolean unico=false;
-        for(Usuario u : listaUsuarios){
-            if (id == u.getId()){
+    public boolean comrpobarUnique(int id) {
+        boolean unico = false;
+        for (Usuario u : listaUsuarios) {
+            if (id == u.getId()) {
                 unico = true;
             }
         }
         return unico;
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bCrear;
     private javax.swing.JButton bGuardar;
